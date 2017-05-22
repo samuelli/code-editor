@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>code-editor demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../code-editor.html">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:400,600" rel="stylesheet">
+
+    <custom-style>
+      <style is="custom-style" include="demo-pages-shared-styles">
+      </style>
+    </custom-style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic code-editor using slot</h3>
+      <demo-snippet>
+        <template>
+          <code-editor><some-code></some-code></code-editor>
+        </template>
+      </demo-snippet>
+
+      <h3>Basic code-editor using 'value' property</h3>
+      <demo-snippet>
+        <template>
+          <code-editor value="<some-code></some-code>"></code-editor>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

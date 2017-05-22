@@ -1,0 +1,203 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<script src="../../node_modules/codemirror/lib/codemirror.js"></script>
+<script src="../../node_modules/codemirror/addon/hint/show-hint.js"></script>
+<script src="../../node_modules/codemirror/addon/hint/xml-hint.js"></script>
+<script src="../../node_modules/codemirror/addon/hint/html-hint.js"></script>
+<script src="../../node_modules/codemirror/mode/xml/xml.js"></script>
+<script src="../../node_modules/codemirror/mode/javascript/javascript.js"></script>
+<script src="../../node_modules/codemirror/mode/css/css.js"></script>
+<script src="../../node_modules/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="../../node_modules/codemirror/addon/runmode/runmode.js"></script>
+
+<link rel="import" href="code-mirror-styles.html">
+
+<dom-module id="code-editor">
+  <template>
+    <style include="code-mirror-styles"></style>
+    <style>
+      :host {
+        --monospace-font: 'Source Code Pro', monospace;
+
+        /* Based on Atom/one-dark-syntax theme https://github.com/atom/one-dark-syntax */
+        --syntax-hue:          220;
+        --syntax-saturation:   13%;
+        --syntax-brightness:   18%;
+
+        /* Monochrome */
+        --mono-1: hsl(var(--syntax-hue), 14%, 90%); /* AAA - default text */
+        --mono-2: hsl(var(--syntax-hue), 9%, 59%); /* AA */
+        --mono-3: hsl(var(--syntax-hue), 6%, 58%);
+
+        /* Colors */
+        --hue-1:   hsl(187, 47%, 55%); /* cyan - AA */
+        --hue-2:   hsl(207, 82%, 66%); /* blue - AA */
+        --hue-3:   hsl(286, 60%, 67%); /* purple - AA */
+        --hue-4:   hsl( 95, 38%, 62%); /* green - AA */
+
+        --hue-5:   hsl(355, 65%, 66%); /* red 1 - AA */
+        --hue-5-2: hsl(  5, 80%, 65%); /* red 2 - AA */
+
+        --hue-6:   hsl( 29, 54%, 61%); /* orange 1 - AA */
+        --hue-6-2: hsl( 39, 67%, 69%); /* orange 2 - AAA */
+
+        /* Base colors*/
+        --syntax-fg:     var(--mono-1);
+        --syntax-bg:     hsl(var(--syntax-hue), var(--syntax-saturation), var(--syntax-brightness));
+        --syntax-selection: hsl(var(--syntax-hue), var(--syntax-saturation), 28%);
+        --syntax-corrected-selection: hsl(var(--syntax-hue), 7%, 62%);
+        --syntax-accent: hsl(var(--syntax-hue), 100%, 67%); /* AA */
+        --syntax-gutter: hsl(var(--syntax-hue), 14%, 45%);
+        --syntax-guide: hsla(var(--syntax-hue), 14%, 71%, 0.85);
+      }
+
+      pre.syntax-highlighted, .CodeMirror {
+        animation: colorize 1s cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      @keyframes colorize {
+        from {
+          filter: grayscale(100%);
+        }
+        to {
+          filter: none;
+        }
+      }
+
+      .CodeMirror {
+        background: var(--syntax-bg);
+        border-bottom-right-radius: 4px;
+        font-size: 14px;
+        font-family: var(--monospace-font);
+        color: var(--mono-1);
+        line-height: 24px;
+        height: auto;
+        padding-left: 12px;
+      }
+
+      .CodeMirror-lines {
+        padding: 16px 0;
+      }
+
+      @media (max-width: 500px) {
+        .CodeMirror {
+          border-radius: 0;
+          padding-left: 16px;
+          border-left: none;
+        }
+      }
+
+      .CodeMirror-selected { background: var(--syntax-selection); }
+      .CodeMirror-focused .CodeMirror-selected { background: var(--syntax-selection); }
+      .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: var(--syntax-corrected-selection); }
+      .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: var(--syntax-corrected-selection); }
+      .CodeMirror-cursor {border-left-color: var(--syntax-accent);}
+      .cm-fat-cursor .CodeMirror-cursor {background: var(--syntax-accent);}
+      .cm-animate-fat-cursor {background-color: var(--syntax-accent);}
+
+      .cm-s-default .cm-header {color: var(--hue-2);}
+      .cm-s-default .cm-quote {color: var(--hue-4);}
+      .cm-negative {color: var(--hue-6-2);}
+      .cm-positive {color: var(--hue-4);}
+
+      .cm-s-default .cm-keyword {color: var(--hue-3);}
+      .cm-s-default .cm-atom {color: var(--hue-1);}
+      .cm-s-default .cm-number {color: var(--hue-6);}
+      .cm-s-default .cm-def {color: inherit;}
+      .cm-s-default .cm-property {color: var(--syntax-fg);}
+      .cm-s-default .cm-variable {color: var(--hue-6-2);}
+      .cm-s-default .cm-punctuation,
+      .cm-s-default .cm-operator {color: var(--hue-1);}
+      .cm-s-default .cm-variable-2 {color: var(--hue-5);}
+      .cm-s-default .cm-variable-3 {color: var(--hue-6);}
+      .cm-s-default .cm-comment {color: var(--mono-3);}
+      .cm-s-default .cm-string {color: var(--hue-4);}
+      .cm-s-default .cm-string-2 {color: var(--hue-4);}
+      .cm-s-default .cm-tag {color: var(--hue-5);}
+      .cm-s-default .cm-bracket {color: var(--syntax-fg);}
+      .cm-s-default .cm-attribute {color: var(--hue-6);}
+      .cm-s-default .cm-link {color: var(--hue-2);}
+
+      /* Untested */
+      .cm-s-default .cm-meta {color: var(--hue-6-2);}
+      .cm-s-default .cm-qualifier {color: var(--hue-2);}
+      .cm-s-default .cm-builtin {color: var(--hue-6-2);}
+      .cm-s-default .cm-hr {color: var(--hue-4);}
+
+      .cm-s-default .cm-error {color: var(--hue-5-2);}
+      .cm-invalidchar {color: var(--hue-5-2);}
+    </style>
+    <div id="container"></div>
+    <slot id="slot"></slot>
+  </template>
+
+  <script>
+    /**
+     * `code-editor`
+     * 
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class CodeEditor extends Polymer.Element {
+      static get is() { return 'code-editor'; }
+      static get properties() {
+        return {
+          value: {
+            type: String,
+            observer: '_valueChanged'
+          },
+          readOnly: {
+            type: Boolean,
+            value: false
+          }
+        };
+      }
+
+      ready() {
+        super.ready();
+        this._ready = true;
+        /* global CodeMirror */
+        this._codeMirror = CodeMirror(this.$.container, {
+          mode: 'text/html',
+          lineWrapping: false,
+          viewportMargin: Infinity,
+          readOnly: this.readOnly
+        });
+        this._codeMirror.on('changes', this._onChanges.bind(this));
+        this.$.slot.addEventListener('slotchange', this._slotToValue.bind(this));
+        if (!this.value)
+          this._slotToValue();
+        this._valueChanged(this.value);
+        Polymer.RenderStatus.afterNextRender(this, this.refresh);
+      }
+
+      refresh() {
+        this._codeMirror.refresh();
+      }
+
+      _valueChanged(value) {
+        if (!this._ready)
+          return;
+        this._codeMirror.setValue(value);
+      }
+
+      _onChanges() {
+        this.dispatchEvent(new CustomEvent('code-change', {detail: {value: this._codeMirror.getValue()}}));
+      }
+
+      _slotToValue() {
+        var nodes = this.$.slot.assignedNodes();
+        if (!nodes.length)
+          return;
+        var text = '';
+        for (var e of nodes)
+          text += e.outerHTML;
+        this.value = text;
+      }
+    }
+
+    window.customElements.define(CodeEditor.is, CodeEditor);
+  </script>
+</dom-module>
